@@ -217,7 +217,7 @@ def mainswitch(sw):
 def tool(file):
     newfile = file.replace("/","_")
     fstr = newfile.replace(".","_")
-    return fstr+".md"
+    return fstr
 
 
 # ios
