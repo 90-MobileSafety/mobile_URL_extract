@@ -5,7 +5,7 @@ URL 提取工具
 python3,basksmali,apktool,strings
 
 使用:
-python3 ./main.py -a/i FilePath
+python3 ./main.py -a/i targetFilePath
 
 -a/i 目标apk/ipa/dex/ios可执行文件/目录
 
