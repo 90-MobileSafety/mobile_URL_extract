@@ -224,7 +224,7 @@ def tool(file):
 # 使用strings 读取可执行文件
 
 if __name__ == "__main__":
-    print("\t\t\t\t\t\t 独立的 dex/apk web资产提取工具")
+    print("\t\t\t\t\t\t 独立的 dex/apk web资产提取工具 7777777777")
     print("\t\t\t\t\t\t 校验参数ing......[*]")
     if len(sys.argv) == 1 :
         print("\t\t\t\t\t\t 参数输入错误\n \t\t\t\t\t\t 帮助 -h")
