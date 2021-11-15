@@ -1,6 +1,5 @@
 # mobile_URL_extract
-mobile safety
-URL 提取工具 
+移动安全 URL 提取工具 
 依赖:
 python3,basksmali,apktool,strings
 
