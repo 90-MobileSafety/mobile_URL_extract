@@ -6,6 +6,7 @@ python3,basksmali,apktool,strings
 
 使用:
 python3 ./main.py -a/i <FilePath>
+
 -a/i 目标apk/ipa/dex/ios可执行文件/目录
 -a android  
 -i ios   
