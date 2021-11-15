@@ -188,7 +188,7 @@ def mainswitch(sw):
         smali_path = os.path.join(sw_dex_apk_dir_ipa, 'smali')
         print(smali_path)
         strlen = len(sw_dex_apk_dir_ipa)
-        #通过截取后缀来判断是文件/目录(虽然有些不太对 应该去判断魔术) 但是先用这个 后面完善了在去判断魔术标识头
+        
         if sw_dex_apk_dir_ipa[strlen-4:strlen] ==".apk":
             print("apk")
             apk_url_extract(sw_dex_apk_dir_ipa)
@@ -208,7 +208,7 @@ def mainswitch(sw):
             #1. 使用 strings 进行搜索
             ipa_url_extract(sw_dex_apk_dir_ipa)
     elif sw == "-h":
-        print("-s <path>      :  指定路径提取apk/dex的web资产 ")
+        print("-a/i <path>      :  指定路径提取apk/dex的web资产 ")
     else :
         print("\t\t\t\t\t\t 参数输入错误")
         exit()
