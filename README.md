@@ -13,3 +13,6 @@ python3 ./main.py -a/i targetFilePath
 -h 帮助
 
 
+使用之前 请配置basksmali和apktookl
+
+
