@@ -11,19 +11,15 @@ import shutil
 basksmali = "path"
 apktool = "path"
 
-
 pattern = re.compile(r'(((file|gopher|news|nntp|telnet|http|ftp|https|ftps|sftp)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&%_\./-~-]*)?')
 
+pattern1 = re.compile(r'(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)')
+# 多重规则去匹配数据
 #dex 使用basksmali 进行反编译
 def Decompile_dex(filepath):
     try:
         
-        #获取格式化时间
-        # date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        # newfile = date.replace(' ','')
-        #newfile = "./test"
-
-        str_cmd = "java -jar "+ basksmali +" d "+ filepath +" -o "+tool(filepath)
+        str_cmd = "java -jar "+ bask +" d "+ filepath +" -o "+tool(filepath)
         print(str_cmd)
         os.system(str_cmd)
         
@@ -43,6 +39,9 @@ def dex_search(file):
                     continue
                 if pattern.search(line):
                     ret_list.append('%s [line %d]: %s' % (file, line_num, line))
+                    
+                elif pattern1.search(line):
+                    ret_list.append('%s [line %d]: %s' % (file, line_num, line))    
                     
             
     except Exception as e:
@@ -89,26 +88,12 @@ def dex_url_extract(filepath):
 def Decompile_apk(filepath):
     try:
 
-        str_cmd = "apktool" + " d "+ filepath +" -o "+tool(filepath)
+        str_cmd = apktool + " d "+ filepath +" -o "+tool(filepath)
         os.system(str_cmd)
         return tool(filepath)
     except Exception as e:
         return "decompile excepiton fail"
-#apk URL提取
-def apk_search(file):
-    ret_list = []
-    line_num = 0
-    try:
-        with io.open(file, 'r', encoding='utf-8') as apkcontent:
-            for line in apkcontent.readlines():
-                line_num  += 1 
-                if 'android.com' in line:
-                    continue
-                if pattern.search(line):
-                    ret_list.append('%s ->: %s' % (file, line))
-    except Exception as e:
-        print(e)
-    return ret_list
+
 #apk main
 def apk_url_extract(filepath):
     apk_Decompile_path = Decompile_apk(filepath)
@@ -123,7 +108,7 @@ def apk_url_extract(filepath):
                     not filename.endswith('xml')):
                     continue
                 file = os.path.join(dirpath, filename)
-                ret = apk_search(file)
+                ret = dex_search(file)
                 if len(ret) !=0:
                     #如果找到了url 就以追加的形式写到文件中
                     #使用join 去除list并且添加换行
@@ -173,22 +158,57 @@ def dirdex_url_extract(filepath):
     print("url提取结果保存到: "+dirResult)
 
 def ipa_url_extract(file):
+    try:
+        print(file)
+        result = os.popen("strings " +file +" | grep 'http'")
+        dirResult = tool(file)
+        dirResult =dirResult +".md"
+        res = result.read()
+        f = io.open(dirResult,'a')
+        f.write(res)
+        result =ipa_url_filter(dirResult)
+        
+        new_str =result
+        result_f = io.open(dirResult,'w')
+        cont_str = '\n'.join(new_str)
+        result_f.write(cont_str)
+        print("url提取结果保存到: "+dirResult)
+    except Exception as e:
+        print(e)
+#因为ios使用的是strings 所以要筛选一下  
+def ipa_url_filter(file):
+   
     print(file)
-    result = os.popen("strings " +file +" | grep 'http'")
-    dirResult = tool(file)
-
-    res = result.read()
-    f = io.open(dirResult,'a')
-    f.write(res)
-    print(dirResult)
+    ret_list = []
+    try:
+        with io.open(file, 'r', encoding='utf-8') as smali:
+            for line in smali.readlines():
+               
+                if 'apple' in line:
+                    continue
+                if 'umeng' in line:
+                    continue
+                if 'adobe' in line:
+                    continue
+                if pattern.search(line):
+                    ret_list.append('%s' % (line))
+                    
+                elif pattern1.search(line):
+                    ret_list.append('%s' %(line))    
+                    
+            
+    except Exception as e:
+        print(e)
+    return ret_list
 def mainswitch(sw):
-    sw_dex_apk_dir_ipa = sys.argv[2]
+    
     if sw == "-a": #android
-        print("提取字符串") 
+        sw_dex_apk_dir_ipa = sys.argv[2]
+        print("Android") 
         smali_path = os.path.join(sw_dex_apk_dir_ipa, 'smali')
         print(smali_path)
         strlen = len(sw_dex_apk_dir_ipa)
-        
+        #通过截取后缀来判断是文件/目录(虽然有些不太对 应该去判断魔术) 但是先用这个 后面完善了在去判断魔术标识头
         if sw_dex_apk_dir_ipa[strlen-4:strlen] ==".apk":
             print("apk")
             apk_url_extract(sw_dex_apk_dir_ipa)
@@ -203,12 +223,13 @@ def mainswitch(sw):
             print("不符合提取文件标准，退出")
             exit()
     elif sw =="-i": #ios
-            print("ipa")
+            sw_dex_apk_dir_ipa = sys.argv[2]
+            print("iOS")
             print("ipa文件 只能是脱壳后的可执行文件,加固状态下的可执行文件不可以提取url")
             #1. 使用 strings 进行搜索
             ipa_url_extract(sw_dex_apk_dir_ipa)
     elif sw == "-h":
-        print("-a/i <path>      :  指定路径提取apk/dex的web资产 ")
+        print("\t\t\t\t\t\t-s <path>      :  指定路径提取apk/dex的web资产 ")
     else :
         print("\t\t\t\t\t\t 参数输入错误")
         exit()
@@ -224,7 +245,7 @@ def tool(file):
 # 使用strings 读取可执行文件
 
 if __name__ == "__main__":
-    print("\t\t\t\t\t\t 独立的 dex/apk web资产提取工具 7777777777")
+    print("\t\t\t\t\t\t 独立的 dex/apk web资产提取工具")
     print("\t\t\t\t\t\t 校验参数ing......[*]")
     if len(sys.argv) == 1 :
         print("\t\t\t\t\t\t 参数输入错误\n \t\t\t\t\t\t 帮助 -h")
@@ -232,4 +253,5 @@ if __name__ == "__main__":
 
     sw = sys.argv[1]
     mainswitch(sw)
+
 
