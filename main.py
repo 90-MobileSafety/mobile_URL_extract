@@ -4,7 +4,8 @@ from math import e
 import os , re,io,shutil
 import sys
 
-bask = "./Tools/baksmali-2.4.0.jar"
+bask = ""
+apktool = ""
 pattern = re.compile(r'(((file|gopher|news|nntp|telnet|http|ftp|https|ftps|sftp)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&%_\./-~-]*)?')
 # '    const-string v1, "123.196.118.23"\n'
 pattern1 = re.compile(r'(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|[0-1]\d{2}|[1-9]?\d)')
@@ -95,7 +96,7 @@ def dex_url_extract(filepath):
 def Decompile_apk(filepath):
     try:
 
-        str_cmd = "apktool" + " d "+ filepath +" -o "+tool(filepath)
+        str_cmd = apktool + " d "+ filepath +" -o "+tool(filepath)
         os.system(str_cmd)
         return tool(filepath)
     except Exception as e:
